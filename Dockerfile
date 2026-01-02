@@ -1,18 +1,10 @@
-FROM node:18-bullseye-slim
+FROM node:18
 
 WORKDIR /app
 
-# Install build dependencies for native modules
-RUN apt-get update && apt-get install -y \
-    python3 \
-    make \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY package*.json ./
 
-# Install dependencies with full rebuild
-RUN npm install --production --build-from-source
+RUN npm install --production
 
 COPY server.js ./
 
