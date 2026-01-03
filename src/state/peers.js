@@ -1,9 +1,12 @@
 const { MAX_PEERS, PEER_TIMEOUT } = require("../config/constants");
 const os = require("os");
+const { LRUCache } = require("./lru");
+const { HyperLogLog } = require("./hyperloglog");
 
 class PeerManager {
     constructor() {
-        this.seenPeers = new Map();
+        this.seenPeers = new LRUCache(MAX_PEERS);
+        this.uniquePeersHLL = new HyperLogLog(10);
         this.mySeq = 0;
     }
 
@@ -22,8 +25,12 @@ class PeerManager {
     }
 
     addOrUpdatePeer(id, seq, key, availableRAM = null) {
+    addOrUpdatePeer(id, seq) {
         const stored = this.seenPeers.get(id);
         const wasNew = !stored;
+
+        // Track in HyperLogLog for total unique estimation
+        this.uniquePeersHLL.add(id);
 
         this.seenPeers.set(id, {
             seq,
@@ -56,7 +63,7 @@ class PeerManager {
         const now = Date.now();
         let removed = 0;
 
-        for (const [id, data] of this.seenPeers) {
+        for (const [id, data] of this.seenPeers.entries()) {
             if (now - data.lastSeen > PEER_TIMEOUT) {
                 this.seenPeers.delete(id);
                 removed++;
@@ -68,6 +75,10 @@ class PeerManager {
 
     get size() {
         return this.seenPeers.size;
+    }
+
+    get totalUniquePeers() {
+        return this.uniquePeersHLL.count();
     }
 
     incrementSeq() {
