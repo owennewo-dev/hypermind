@@ -26,7 +26,7 @@ class MessageHandler {
 
     handleHeartbeat(msg, sourceSocket) {
         this.diagnostics.increment("heartbeatsReceived");
-        const { id, seq, hops, nonce, sig, availableRAM } = msg;
+        const { id, seq, hops, nonce, sig, usedRAM } = msg;
 
         if (!verifyPoW(id, nonce)) {
             this.diagnostics.increment("invalidPoW");
@@ -57,8 +57,7 @@ class MessageHandler {
                 sourceSocket.peerId = id;
             }
 
-            const wasNew = this.peerManager.addOrUpdatePeer(id, seq, key, availableRAM || 0);
-            const wasNew = this.peerManager.addOrUpdatePeer(id, seq);
+            const wasNew = this.peerManager.addOrUpdatePeer(id, seq, key, usedRAM || 0);
 
             if (wasNew) {
                 this.diagnostics.increment("newPeersAdded");
@@ -114,7 +113,7 @@ const validateMessage = (msg) => {
     if (msgSize > require("../config/constants").MAX_MESSAGE_SIZE) return false;
 
     if (msg.type === "HEARTBEAT") {
-        const allowedFields = ['type', 'id', 'seq', 'hops', 'nonce', 'sig'];
+        const allowedFields = ['type', 'id', 'seq', 'hops', 'nonce', 'sig', 'usedRAM'];
         const fields = Object.keys(msg);
         return fields.every(f => allowedFields.includes(f)) &&
             msg.id && typeof msg.seq === 'number' &&

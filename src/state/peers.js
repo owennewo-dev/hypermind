@@ -10,22 +10,21 @@ class PeerManager {
         this.mySeq = 0;
     }
 
-    getAvailableRAM() {
-        return os.freemem();
+    getUsedRAM() {
+        return process.memoryUsage().rss;
     }
 
-    getTotalAvailableRAM() {
+    getTotalUsedRAM() {
         let total = 0;
-        for (const [id, data] of this.seenPeers) {
-            if (data.availableRAM) {
-                total += data.availableRAM;
+        for (const [id, data] of this.seenPeers.entries()) {
+            if (data.usedRAM) {
+                total += data.usedRAM;
             }
         }
         return total;
     }
 
-    addOrUpdatePeer(id, seq, key, availableRAM = null) {
-    addOrUpdatePeer(id, seq) {
+    addOrUpdatePeer(id, seq, key = null, usedRAM = null) {
         const stored = this.seenPeers.get(id);
         const wasNew = !stored;
 
@@ -36,7 +35,7 @@ class PeerManager {
             seq,
             lastSeen: Date.now(),
             key,
-            availableRAM: availableRAM !== null ? availableRAM : (stored ? stored.availableRAM : 0),
+            usedRAM: usedRAM !== null ? usedRAM : (stored ? stored.usedRAM : 0),
         });
 
         return wasNew;

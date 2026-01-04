@@ -42,7 +42,7 @@ class SwarmManager {
             hops: 0,
             nonce: this.identity.nonce,
             sig,
-            availableRAM: this.peerManager.getAvailableRAM(),
+            usedRAM: this.peerManager.getUsedRAM(),
         });
         socket.write(hello);
         this.broadcastFn();
@@ -75,7 +75,7 @@ class SwarmManager {
     startHeartbeat() {
         this.heartbeatInterval = setInterval(() => {
             const seq = this.peerManager.incrementSeq();
-            const currentRAM = this.peerManager.getAvailableRAM();
+            const currentRAM = this.peerManager.getUsedRAM();
             this.peerManager.addOrUpdatePeer(this.identity.id, seq, null, currentRAM);
 
             const sig = signMessage(`seq:${seq}`, this.identity.privateKey);
@@ -86,7 +86,7 @@ class SwarmManager {
                 hops: 0,
                 nonce: this.identity.nonce,
                 sig,
-                availableRAM: currentRAM,
+                usedRAM: currentRAM,
             }) + "\n";
 
             for (const socket of this.swarm.connections) {

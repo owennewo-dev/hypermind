@@ -117,9 +117,15 @@ evtSource.onmessage = (event) => {
     directEl.innerText = data.direct;
 
     if (data.totalRAM !== undefined) {
-        const ramGB = Math.round(data.totalRAM / (1024 * 1024 * 1024));
-        const ramDollars = Math.round(ramGB * 12.5);
-        totalRAMEl.innerText = `${ramGB}GB = $${ramDollars.toLocaleString()}`;
+        const bytes = data.totalRAM;
+        const gb = bytes / (1024 * 1024 * 1024);
+        if (gb < 1) {
+            const mb = Math.round(bytes / (1024 * 1024));
+            totalRAMEl.innerText = `${mb}MB`;
+        } else {
+            const ramGB = Math.round(gb);
+            totalRAMEl.innerText = `${ramGB}GB`;
+        }
     }
 
     if (data.diagnostics) {

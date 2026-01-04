@@ -25,7 +25,7 @@ const main = async () => {
       direct: swarmManager.getSwarm().connections.size,
       id: identity.id,
       diagnostics: diagnostics.getStats(),
-      totalRAM: peerManager.getTotalAvailableRAM(),
+      totalRAM: peerManager.getTotalUsedRAM(),
     });
   };
 

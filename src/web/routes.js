@@ -11,11 +11,13 @@ const setupRoutes = (app, identity, peerManager, swarm, sseManager, diagnostics)
     app.get("/", (req, res) => {
         const count = peerManager.size;
         const directPeers = swarm.getSwarm().connections.size;
+        const showRAM = process.env.RAM_USAGE === 'true' ? 'block' : 'none';
 
         const html = HTML_TEMPLATE
             .replace(/\{\{COUNT\}\}/g, count)
             .replace(/\{\{ID\}\}/g, identity.id.slice(0, 8) + "...")
-            .replace(/\{\{DIRECT\}\}/g, directPeers);
+            .replace(/\{\{DIRECT\}\}/g, directPeers)
+            .replace(/\{\{SHOW_RAM\}\}/g, showRAM);
 
         res.send(html);
     });
@@ -34,7 +36,7 @@ const setupRoutes = (app, identity, peerManager, swarm, sseManager, diagnostics)
             direct: swarm.getSwarm().connections.size,
             id: identity.id,
             diagnostics: diagnostics.getStats(),
-            totalRAM: peerManager.getTotalAvailableRAM(),
+            totalRAM: peerManager.getTotalUsedRAM(),
         });
         res.write(`data: ${data}\n\n`);
 
@@ -50,8 +52,8 @@ const setupRoutes = (app, identity, peerManager, swarm, sseManager, diagnostics)
             direct: swarm.getSwarm().connections.size,
             id: identity.id,
             diagnostics: diagnostics.getStats(),
-            totalAvailableRAM: peerManager.getTotalAvailableRAM(),
-            totalAvailableRAMGB: (peerManager.getTotalAvailableRAM() / (1024 * 1024 * 1024)).toFixed(2),
+            totalUsedRAM: peerManager.getTotalUsedRAM(),
+            totalUsedRAMGB: (peerManager.getTotalUsedRAM() / (1024 * 1024 * 1024)).toFixed(2),
         });
     });
 
