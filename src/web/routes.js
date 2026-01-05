@@ -14,7 +14,7 @@ const setupRoutes = (app, identity, peerManager, swarm, sseManager, diagnostics)
 
         const html = HTML_TEMPLATE
             .replace(/\{\{COUNT\}\}/g, count)
-            .replace(/\{\{ID\}\}/g, identity.id.slice(0, 8) + "...")
+            .replace(/\{\{ID\}\}/g, "..." + identity.id.slice(-15))
             .replace(/\{\{DIRECT\}\}/g, directPeers);
 
         res.send(html);

@@ -15,7 +15,6 @@
             powered by <a href="https://github.com/lklynet/hypermind" target="_blank">hypermind</a>
         </div>
         <div class="debug">
-            ID: {{ID}}<br>
             Direct Connections: <span id="direct">{{DIRECT}}</span><br>
             <span class="debug-link" onclick="openDiagnostics()">diagnostics</span>
         </div>
@@ -60,6 +59,10 @@
             <div class="stat-row">
                 <span class="stat-label">LEAVE Messages</span>
                 <span class="stat-value" id="diag-leave">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Node ID</span>
+                <span class="stat-value" id="ID">{{ID}}</span>
             </div>
             <div class="update-time" id="last-update">last 10 seconds</div>
         </div>
