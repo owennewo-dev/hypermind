@@ -3,6 +3,7 @@ const {
   verifySignature,
   createPublicKey,
 } = require("../core/security");
+const crypto = require("crypto");
 const { MAX_RELAY_HOPS, ENABLE_CHAT, CHAT_RATE_LIMIT } = require("../config/constants");
 const { BloomFilterManager } = require("../state/bloom");
 
@@ -176,6 +177,22 @@ class MessageHandler {
         }
     } else if (scope === 'GLOBAL') {
         if (!sig || !id) return;
+
+        // Integrity Check: Ensure ID matches content/timestamp
+        // This binds the signature (which signs ID) to the content
+        const idBase = sender + msg.content + msg.timestamp;
+        const computedId = crypto.createHash('sha256').update(idBase).digest('hex');
+        
+        if (computedId !== id) {
+            this.diagnostics.increment("invalidSig"); // Reuse metric for integrity failure
+            return;
+        }
+
+        // Timestamp Check: Prevent replays beyond Bloom filter window
+        // Allow 1 minute drift/delay
+        if (Math.abs(now - msg.timestamp) > 60000) {
+             return; 
+        }
 
         // Check signature
         const key = createPublicKey(sender);

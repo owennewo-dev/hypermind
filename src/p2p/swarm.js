@@ -47,18 +47,25 @@ class SwarmManager {
         socket.write(hello);
         this.broadcastFn();
 
+        socket.buffer = "";
+
         socket.on("data", (data) => {
             this.diagnostics.increment("bytesReceived", data.length);
-            try {
-                const msgs = data
-                    .toString()
-                    .split("\n")
-                    .filter((x) => x.trim());
-                for (const msgStr of msgs) {
+            socket.buffer += data.toString();
+
+            const lines = socket.buffer.split("\n");
+            // The last element is either an empty string (if data ended with \n)
+            // or the incomplete part of the next message.
+            socket.buffer = lines.pop();
+
+            for (const msgStr of lines) {
+                if (!msgStr.trim()) continue;
+                try {
                     const msg = JSON.parse(msgStr);
                     this.messageHandler.handleMessage(msg, socket);
+                } catch (e) {
+                    // Invalid JSON or partial message (shouldn't happen with buffering logic unless data is corrupted)
                 }
-            } catch (e) {
             }
         });
 
