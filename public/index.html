@@ -28,8 +28,17 @@
     <script src="/js/lists.js"></script>
     <script src="/js/screenname.js"></script>
     <script src="/js/commands.js"></script>
+    <script src="/js/version-checker.js"></script>
   </head>
   <body>
+    <div id="version-notification" class="version-notification">
+      <div class="version-content">
+        <span class="version-text">New version available!</span>
+        <a href="#" target="_blank" class="update-link">View Release</a>
+        <button class="dismiss-btn" title="Dismiss">×</button>
+      </div>
+    </div>
+
     <canvas id="network" data-visual-limit="{{VISUAL_LIMIT}}"></canvas>
     <div class="container">
       <div id="count" class="count" data-initial-count="{{COUNT}}">
