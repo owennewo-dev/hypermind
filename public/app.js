@@ -281,9 +281,26 @@ const promptEl = document.querySelector(".prompt");
 let myId = null;
 let myChatHistory = [];
 let globalChatEnabled = true;
+let showTimestamp = localStorage.getItem("showTimestamp") === "true";
 let blockedUsers = new Set(
   JSON.parse(localStorage.getItem("blockedUsers") || "[]")
 );
+
+if (showTimestamp) {
+  terminalOutput.classList.add("show-timestamps");
+}
+
+window.toggleTimestamp = () => {
+  showTimestamp = !showTimestamp;
+  localStorage.setItem("showTimestamp", showTimestamp);
+  if (showTimestamp) {
+    terminalOutput.classList.add("show-timestamps");
+    systemStatusBar.innerText = "[SYSTEM] Timestamps enabled";
+  } else {
+    terminalOutput.classList.remove("show-timestamps");
+    systemStatusBar.innerText = "[SYSTEM] Timestamps disabled";
+  }
+};
 let nameToId = new Map();
 
 // Context Menu Logic
@@ -487,6 +504,17 @@ const appendMessage = (msg) => {
     let scopeLabel = msg.scope === "LOCAL" ? "[LOCAL] " : "";
     if (msg.target) scopeLabel = "[WHISPER] ";
 
+    const timestampSpan = document.createElement("span");
+    timestampSpan.className = "timestamp";
+    const date = new Date();
+    timestampSpan.innerText = `[${date
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}:${date
+      .getSeconds()
+      .toString()
+      .padStart(2, "0")}]`;
+
     const senderSpan = document.createElement("span");
     senderSpan.className = "msg-sender";
     senderSpan.style.color = senderColor;
@@ -517,6 +545,7 @@ const appendMessage = (msg) => {
       contentSpan.style.opacity = "0.8";
     }
 
+    div.appendChild(timestampSpan);
     div.appendChild(senderSpan);
     div.appendChild(contentSpan);
   }
@@ -526,6 +555,11 @@ const appendMessage = (msg) => {
 };
 
 terminalInput.addEventListener("keypress", async (e) => {
+  // Init audio context on first interaction
+  if (window.SoundManager) {
+    window.SoundManager.init();
+  }
+
   if (e.key === "Enter") {
     let content = terminalInput.value.trim();
     if (!content) return;
@@ -635,6 +669,7 @@ terminalInput.addEventListener("keypress", async (e) => {
       });
 
       if (res.ok) {
+        if (window.SoundManager) window.SoundManager.playSent();
         myChatHistory.push(Date.now());
         updatePromptStatus();
       } else if (res.status === 429) {
@@ -662,6 +697,14 @@ evtSource.onmessage = (event) => {
   }
 
   if (data.type === "CHAT") {
+    // Play sounds
+    if (window.SoundManager && data.sender !== myId) {
+      if (data.target === myId) {
+        window.SoundManager.playWhisper();
+      } else {
+        window.SoundManager.playReceived();
+      }
+    }
     appendMessage(data);
     return;
   }

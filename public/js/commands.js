@@ -6,6 +6,8 @@ import { clearCommand } from "./chat-commands/clear.js";
 import { frenzyCommand } from "./chat-commands/frenzy.js";
 import { helpCommand } from "./chat-commands/help.js";
 import { replacements } from "./chat-commands/replacements.js";
+import { timestampCommand } from "./chat-commands/timestamp.js";
+import { soundCommand } from "./chat-commands/sound.js";
 
 const formatMessage = (text) => {
   if (!text) return "";
@@ -30,6 +32,8 @@ const actions = {
   "/clear": clearCommand,
   "/frenzy": frenzyCommand,
   "/help": helpCommand,
+  "/timestamp": timestampCommand,
+  "/sound": soundCommand,
 };
 
 const processInput = (input) => {
@@ -54,3 +58,4 @@ const ChatCommands = {
 };
 
 window.ChatCommands = ChatCommands;
+export { ChatCommands };

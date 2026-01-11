@@ -64,6 +64,8 @@ Open `http://localhost:3000`. The dashboard updates in **Realtime** via Server-S
 *   `/local <msg>` - Send message only to direct connections.
 *   `/whisper <user> <msg>` - Send a private message.
 *   `/block <user>` - Block a user.
+*   `/timestamp` - Toggle message timestamps.
+*   `/sound` - Toggle sound effects for sent/received messages.
 *   **Easter Eggs:** `/shrug`, `/tableflip`, `/heart`, and more.
 
 ---

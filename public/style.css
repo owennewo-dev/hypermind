@@ -338,6 +338,17 @@ a { color: var(--color-text-anchor-link); text-decoration: none; border-bottom: 
     color: var(--color-terminal-output-message);
 }
 
+.timestamp {
+    display: none;
+    color: #888;
+    font-size: 0.8em;
+    margin-right: 5px;
+}
+
+.show-timestamps .timestamp {
+    display: inline;
+}
+
 /* Context Menu */
 .context-menu {
     display: none;
